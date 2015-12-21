@@ -1,3 +1,9 @@
+/*
+
+Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -285,7 +291,7 @@ int coap_build(uint8_t *buf, size_t *buflen, const coap_packet_t *pkt)
     p = buf + 4;
     if ((pkt->hdr.tkl > 0) && (pkt->hdr.tkl != pkt->tok.len))
         return COAP_ERR_UNSUPPORTED;
-    
+
     if (pkt->hdr.tkl > 0)
         memcpy(p, pkt->tok.p, pkt->hdr.tkl);
 
@@ -431,4 +437,3 @@ void coap_setup(void)
 {
 //TODO
 }
-

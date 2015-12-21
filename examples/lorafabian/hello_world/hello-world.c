@@ -36,6 +36,7 @@
  *         A very simple Contiki application showing how Contiki programs look
  * \author
  *         Adam Dunkels <adam@sics.se>
+ *         Sébastien Blin <contact@enconn.fr>
  */
 
 #include "contiki.h"

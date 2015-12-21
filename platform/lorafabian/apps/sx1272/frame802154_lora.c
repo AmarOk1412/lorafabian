@@ -1,3 +1,9 @@
+/*
+
+  Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 #include "frame802154_lora.h"
 
 const uint8_t HARDCODED_MAC[] = {0xfa,0xb0,0x00,0x00,0x00,0x00,0x00,0x03};

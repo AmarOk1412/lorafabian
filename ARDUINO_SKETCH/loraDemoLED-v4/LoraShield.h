@@ -1,3 +1,9 @@
+/*
+
+Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 #ifndef _FROGGYFACTORY_LORA_H_
 #define _FROGGYFACTORY_LORA_H_
 

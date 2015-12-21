@@ -1,3 +1,9 @@
+/*
+
+Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 #include "LoraShield.h"
 
 #include <SPI.h>
@@ -5,7 +11,7 @@
 /**
  * Constructor
  */
-LoraShield::LoraShield() 
+LoraShield::LoraShield()
 { }
 
 /**
@@ -14,11 +20,11 @@ LoraShield::LoraShield()
 void LoraShield::init()
 {
   pinMode(SS_PIN, OUTPUT); // we use this for SS pin
-  digitalWrite(SS_PIN, HIGH); 
-  
+  digitalWrite(SS_PIN, HIGH);
+
   // start the SPI library:
   SPI.begin();  // wake up the SPI bus.
-  #if defined(DUEBOARD) 
+  #if defined(DUEBOARD)
     SPI.setDataMode(_ss_pin, SPI_MODE0);
     SPI.setClockDivider(_ss_pin, SPI_CLK_DIVIDER);
   #else
@@ -42,9 +48,9 @@ void LoraShield::begin(String name)
   digitalWrite(SS_PIN, LOW);
 
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_HOSTNAME); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_HOSTNAME);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(name.length() >> 8);
@@ -60,7 +66,7 @@ void LoraShield::begin(String name)
     delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
   }
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG*2);
 }
 
@@ -76,14 +82,14 @@ int LoraShield::dataAvailable()
   int previous_cmd_status = SPI.transfer(ARDUINO_CMD_AVAILABLE);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
   int shield_status = SPI.transfer(ARDUINO_CMD_AVAILABLE);
-  delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);  
+  delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
   int available_msb = SPI.transfer(ARDUINO_CMD_AVAILABLE);
-  delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI); 
+  delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
   int available_lsb = SPI.transfer(ARDUINO_CMD_AVAILABLE);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 
   // take the SS pin high to de-select the chip:
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delayMicroseconds(WAIT_TIME_BETWEEN_SPI_MSG);
 
   return (available_msb << 8) + available_lsb;
@@ -110,7 +116,7 @@ String LoraShield::read(bool verbose) {
     digitalWrite(SS_PIN,HIGH);
     delayMicroseconds(WAIT_TIME_BETWEEN_SPI_MSG);
   }
-  
+
   if(verbose)
   {
     Serial.println("Packet received");
@@ -123,13 +129,13 @@ String LoraShield::read(bool verbose) {
     int rc;
     int rspPktbufflen = 256;
     unsigned char rspPktBuff[rspPktbufflen];
-  
+
     coap_packet_t pkt;
-    coap_packet_t rsppkt; 
+    coap_packet_t rsppkt;
     size_t rsplen = sizeof(rspPktBuff);
-    
+
     Serial.println(hex8ToString(&pkt.hdr.ver, 1));
-  
+
     if (0 != (rc = coap_parse(&pkt, buf, sizePacket))){
       if(verbose)
       {
@@ -138,12 +144,12 @@ String LoraShield::read(bool verbose) {
       }
       return "";
     }
-  
+
     uint8_t scratch_raw[32];
     coap_rw_buffer_t scratch_buf = {scratch_raw, sizeof(scratch_raw)};
-    coap_handle_req(&scratch_buf, &pkt, &rsppkt);    
+    coap_handle_req(&scratch_buf, &pkt, &rsppkt);
     memset(rspPktBuff, 0, rspPktbufflen);
-  
+
     if (0 != (rc = coap_build(rspPktBuff, &rsplen, &rsppkt))){
       if(verbose)
       {
@@ -152,7 +158,7 @@ String LoraShield::read(bool verbose) {
       }
       return "";
     }
-  
+
     //Send packet to Shield
     write(rspPktBuff,rsplen);
   }
@@ -169,9 +175,9 @@ void LoraShield::write(byte buff[], int bufflen) {
   digitalWrite(SS_PIN, LOW);
 
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_WRITE); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_WRITE);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(bufflen >> 8);
@@ -179,7 +185,7 @@ void LoraShield::write(byte buff[], int bufflen) {
 
   shield_status = SPI.transfer(bufflen);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   //Send:  payload as bytes to send
   for (int i = 0; i < bufflen ; i++)
   {
@@ -188,7 +194,7 @@ void LoraShield::write(byte buff[], int bufflen) {
     delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
   }
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 }
 
@@ -203,9 +209,9 @@ void LoraShield::setContikiDebug(bool setcontikidebug)
   int length = sizeof(0x01);
 
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_DEBUG); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_DEBUG);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(length >> 8);
@@ -217,7 +223,7 @@ void LoraShield::setContikiDebug(bool setcontikidebug)
   shield_status = setcontikidebug ? SPI.transfer(0x01) : SPI.transfer(0x00);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG*3);
 }
 
@@ -239,9 +245,9 @@ void LoraShield::setFreq(long freq)
     Serial.println("Change frequency : " + String(freq));
 
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_FREQ); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_FREQ);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(length >> 8);
@@ -259,7 +265,7 @@ void LoraShield::setFreq(long freq)
   shield_status = SPI.transfer((freq) & 0xFF);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
 }
 
@@ -271,12 +277,12 @@ unsigned long LoraShield::getFreq()
 {
   digitalWrite(SS_PIN, LOW);
   unsigned long freq = 0;
-  
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_FREQ); 
-  
-  digitalWrite(SS_PIN,HIGH); 
+
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_FREQ);
+
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
-  
+
   while(dataAvailable() != 4)
   { }
   String freqString;
@@ -320,9 +326,9 @@ void LoraShield::setBandwidth(int bw)
     Serial.println("Change bandwidth mode : " + String(bw));
 
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_BW_CFG); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_BW_CFG);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(length >> 8);
@@ -334,7 +340,7 @@ void LoraShield::setBandwidth(int bw)
   shield_status = SPI.transfer(bw);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
 }
 
@@ -346,15 +352,15 @@ int LoraShield::getBandwidth()
 {
   digitalWrite(SS_PIN, LOW);
   int bw = 0;
-  
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_BW_CFG); 
-  
-  digitalWrite(SS_PIN,HIGH); 
+
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_BW_CFG);
+
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
-  
+
   while(!dataAvailable())
   {}
-  
+
   int sizePacket = dataAvailable();
   for (int i = 0; i < sizePacket; i++) {
     digitalWrite(SS_PIN,LOW);
@@ -368,7 +374,7 @@ int LoraShield::getBandwidth()
     digitalWrite(SS_PIN,HIGH);
     delayMicroseconds(WAIT_TIME_BETWEEN_SPI_MSG);
   }
-  
+
   return bw;
 }
 
@@ -389,9 +395,9 @@ void LoraShield::setCodingRate(int cr)
     Serial.println("Change code rate : " + String(cr));
 
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_CR_CFG); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_CR_CFG);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(length >> 8);
@@ -403,7 +409,7 @@ void LoraShield::setCodingRate(int cr)
   shield_status = SPI.transfer(cr);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
 }
 
@@ -415,15 +421,15 @@ int LoraShield::getCodingRate()
 {
   digitalWrite(SS_PIN, LOW);
   int cr = 0;
-  
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_CR_CFG); 
-  
-  digitalWrite(SS_PIN,HIGH); 
+
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_CR_CFG);
+
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
-  
+
   while(!dataAvailable())
   {}
-  
+
   int sizePacket = dataAvailable();
   for (int i = 0; i < sizePacket; i++) {
     digitalWrite(SS_PIN,LOW);
@@ -437,7 +443,7 @@ int LoraShield::getCodingRate()
     digitalWrite(SS_PIN,HIGH);
     delayMicroseconds(WAIT_TIME_BETWEEN_SPI_MSG);
   }
-  
+
   return cr;
 }
 
@@ -458,9 +464,9 @@ void LoraShield::setSpreadingFactor(int sf)
     Serial.println("Change spreading factor : " + String(sf));
 
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_SF_CFG); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_SF_CFG);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(length >> 8);
@@ -472,7 +478,7 @@ void LoraShield::setSpreadingFactor(int sf)
   shield_status = SPI.transfer(sf);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
 }
 
@@ -484,15 +490,15 @@ int LoraShield::getSpreadingFactor()
 {
   digitalWrite(SS_PIN, LOW);
   int sf = 0;
-  
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_SF_CFG); 
-  
-  digitalWrite(SS_PIN,HIGH); 
+
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_SF_CFG);
+
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
-  
+
   while(!dataAvailable())
   {}
-  
+
   int sizePacket = dataAvailable();
   for (int i = 0; i < sizePacket; i++) {
     digitalWrite(SS_PIN,LOW);
@@ -506,7 +512,7 @@ int LoraShield::getSpreadingFactor()
     digitalWrite(SS_PIN,HIGH);
     delayMicroseconds(WAIT_TIME_BETWEEN_SPI_MSG);
   }
-  
+
   return sf;
 }
 
@@ -525,11 +531,11 @@ void LoraShield::setRFConfig(int rfconfig)
   }
   else
     Serial.println("Change config mode : " + String(rfconfig));
-    
+
   // The byte is the status of the last command
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_RF_CFG); 
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_RF_CFG);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
-  
+
   // Data size to be sent
   // MSB
   int shield_status = SPI.transfer(length >> 8);
@@ -540,7 +546,7 @@ void LoraShield::setRFConfig(int rfconfig)
   shield_status = SPI.transfer(rfconfig);
   delayMicroseconds(WAIT_TIME_BETWEEN_BYTES_SPI);
 
-  digitalWrite(SS_PIN,HIGH); 
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
 }
 
@@ -552,15 +558,15 @@ String LoraShield::getMAC()
 {
   digitalWrite(SS_PIN, LOW);
   uint8_t MAC[8];
-  
-  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_MAC); 
-  
-  digitalWrite(SS_PIN,HIGH); 
+
+  int previous_cmd_status = SPI.transfer(ARDUINO_CMD_GET_MAC);
+
+  digitalWrite(SS_PIN,HIGH);
   delay(WAIT_TIME_BETWEEN_SPI_MSG);
-  
+
   while(!dataAvailable())
   {}
-  
+
   int sizePacket = dataAvailable();
   for (int i = 0; i < sizePacket; i++) {
     digitalWrite(SS_PIN,LOW);
@@ -574,7 +580,7 @@ String LoraShield::getMAC()
     digitalWrite(SS_PIN,HIGH);
     delayMicroseconds(WAIT_TIME_BETWEEN_SPI_MSG);
   }
-  
+
   return hex8ToString(MAC, 8);
 }
 
@@ -589,7 +595,7 @@ String LoraShield::hex8ToString(uint8_t *data, uint8_t length)
   char tmp[length*2+1];
   byte first ;
   int j=0;
-  for (uint8_t i=0; i<length; i++) 
+  for (uint8_t i=0; i<length; i++)
   {
     first = (data[i] >> 4) | 48;
     if (first > 57) tmp[j] = first + (byte)39;
@@ -597,7 +603,7 @@ String LoraShield::hex8ToString(uint8_t *data, uint8_t length)
     j++;
 
     first = (data[i] & 0x0F) | 48;
-    if (first > 57) tmp[j] = first + (byte)39; 
+    if (first > 57) tmp[j] = first + (byte)39;
     else tmp[j] = first;
     j++;
   }

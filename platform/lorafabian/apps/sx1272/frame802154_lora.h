@@ -1,3 +1,9 @@
+/*
+
+  Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 #ifndef FRAME_802154_LORA_H
 #define FRAME_802154_LORA_H
 

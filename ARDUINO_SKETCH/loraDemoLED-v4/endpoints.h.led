@@ -1,3 +1,9 @@
+/*
+
+Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 #include <stdbool.h>
 #include <string.h>
 #include "coap.h"

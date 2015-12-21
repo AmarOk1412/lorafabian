@@ -1,3 +1,9 @@
+/*
+
+  Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 #include "layer802154_radio_lora.h"
 
 #include "contiki.h"

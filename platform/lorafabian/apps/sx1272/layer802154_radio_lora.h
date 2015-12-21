@@ -1,3 +1,9 @@
+/*
+
+  Copyright (c) 2015 Mr Sébastien Blin <contact@enconn.fr>.
+
+*/
+
 /**
  * \Description: 802154 interface for LoRaFabian
  **/
